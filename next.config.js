@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
-const isProd = process.env.NODE_ENV === 'production';
+// 使用 GITHUB_ACTIONS 或 DEPLOY_TARGET 判断是否为 GitHub Pages 部署
+const isGitHubPages = process.env.GITHUB_ACTIONS === 'true' || process.env.DEPLOY_TARGET === 'github-pages';
 
 const nextConfig = {
   output: 'export',
@@ -7,9 +8,9 @@ const nextConfig = {
     unoptimized: true,
   },
   // GitHub Pages 部署需要设置 basePath 为仓库名
-  basePath: isProd ? '/tlabel-web' : '',
+  basePath: isGitHubPages ? '/tlabel-web' : '',
   // 确保静态资源路径正确
-  assetPrefix: isProd ? '/tlabel-web' : '',
+  assetPrefix: isGitHubPages ? '/tlabel-web' : '',
 };
 
 module.exports = nextConfig;
