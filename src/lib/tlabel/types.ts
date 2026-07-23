@@ -65,6 +65,10 @@ export interface TLabelData {
   timestamps: number[];
   sample_rate: number;
   data: TLabelSemanticFeatures;
+  /** 原始关节数据 [time][joint] - 用于 LeRobot action 生成 */
+  jointData?: number[][];
+  /** 原始通道数据 [time][channel] - 用于 LeRobot observation.tactile */
+  rawChannelData?: number[][];
   metadata: {
     source_format: string;
     source_file: string;
