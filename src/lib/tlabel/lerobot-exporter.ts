@@ -166,12 +166,33 @@ export function generateLeRobotDataLines(tlabelData: TLabelData): string {
       'episode_index': 0,
       'frame_index': t,
       'timestamp': tlabelData.timestamps[t],
-      'observation.tactile': tlabelData.data.pressure[t],
+      // 使用原始通道数据（如果有），否则回退到 pressure
+      'observation.tactile': tlabelData.rawChannelData?.[t] || tlabelData.data.pressure[t],
     };
 
     // 添加语义特征
     for (const featureName of SEMANTIC_FEATURE_NAMES) {
-      frame[`observation.semantic.${featureName}`] = tlabelData.data[featureName][t];
+      frame[\`observation.semantic.\${featureName}\`] = tlabelData.data[featureName][t];
+    }
+
+    // 添加关节数据作为 observation
+    if (tlabelData.jointData && tlabelData.jointData[t]) {
+      frame['observation.joints'] = tlabelData.jointData[t];
+      // action: 使用关节角度作为 target position（与 observation.joints 相同）
+      frame['action'] = tlabelData.jointData[t];
+    }
+
+    // 添加力数据（如果有）
+    if (tlabelData.metadata.has_force_data) {
+      // 从 force_normal/shear 重构力数据
+      const forceNormal = tlabelData.data.force_normal[t];
+      const forceShearX = tlabelData.data.force_shear_x[t];
+      const forceShearY = tlabelData.data.force_shear_y[t];
+      // 取第一个通道的力值作为整体力估计
+      const fx = forceShearX[0] || 0;
+      const fy = forceShearY[0] || 0;
+      const fz = forceNormal[0] || 0;
+      frame['observation.force'] = [fx, fy, fz];
     }
 
     // 添加 index 和 next.done
