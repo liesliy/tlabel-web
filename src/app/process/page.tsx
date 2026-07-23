@@ -19,6 +19,7 @@ import {
   UploadOutlined,
   CodeOutlined,
 } from '@ant-design/icons';
+import { parseURDF } from '@/lib/client/urdf';
 
 const { Title, Text, Paragraph } = Typography;
 const { Dragger } = Upload;
@@ -48,7 +49,7 @@ export default function ProcessPage() {
     return false;
   }, []);
 
-  const handleAnalyze = useCallback(async () => {
+  const handleAnalyze = useCallback(() => {
     if (!urdfContent) {
       message.warning('请先上传 URDF 文件');
       return;
@@ -56,18 +57,12 @@ export default function ProcessPage() {
 
     setAnalyzing(true);
     try {
-      const response = await fetch('/api/urdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ urdfContent }),
-      });
-
-      const data = await response.json();
+      const data = parseURDF(urdfContent);
       if (data.success) {
         setUrdfInfo(data.urdfInfo);
         message.success('URDF 分析完成');
       } else {
-        message.error(data.error || '分析失败');
+        message.error('分析失败');
       }
     } catch {
       message.error('分析出错');

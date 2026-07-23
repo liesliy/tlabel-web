@@ -19,31 +19,19 @@ import {
   RobotOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
+import { getHistory, clearHistory, type HistoryEntry } from '@/lib/client/history';
 
 const { Title, Text } = Typography;
-
-interface HistoryEntry {
-  id: string;
-  fileName: string;
-  processedAt: string;
-  status: string;
-  channelCount: number;
-  sampleRate: number;
-  sampleCount: number;
-  targetHand: string | null;
-  exportLeRobot: boolean;
-}
 
 export default function HistoryPage() {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
 
-  const fetchHistory = useCallback(async () => {
+  const fetchHistory = useCallback(() => {
     setLoading(true);
     try {
-      const response = await fetch('/api/history');
-      const data = await response.json();
+      const data = getHistory();
       setHistory(data.history || []);
       setTotal(data.total || 0);
     } catch {
@@ -51,6 +39,13 @@ export default function HistoryPage() {
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  const handleClearHistory = useCallback(() => {
+    clearHistory();
+    setHistory([]);
+    setTotal(0);
+    message.success('历史记录已清空');
   }, []);
 
   useEffect(() => {
@@ -146,6 +141,15 @@ export default function HistoryPage() {
           >
             刷新
           </Button>
+          {history.length > 0 && (
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              onClick={handleClearHistory}
+            >
+              清空
+            </Button>
+          )}
         </Space>
       </div>
 

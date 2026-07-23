@@ -29,43 +29,12 @@ import {
   LoadingOutlined,
   ExperimentOutlined,
 } from '@ant-design/icons';
+import { processTLabelData, type ProcessResult } from '@/lib/client/process';
+import { addHistoryEntry } from '@/lib/client/history';
 
 const { Title, Text, Paragraph } = Typography;
 const { Dragger } = Upload;
 const { Panel } = Collapse;
-
-interface ProcessStep {
-  name: string;
-  status: string;
-  detail: string;
-}
-
-interface ProcessResult {
-  success: boolean;
-  steps: ProcessStep[];
-  tlabel: {
-    json: string;
-    metadata: Record<string, unknown>;
-    channelCount: number;
-    rows: number;
-    cols: number;
-    sampleCount: number;
-    sampleRate: number;
-    featureCount: number;
-  };
-  urdfMapping: {
-    targetHand: string;
-    targetChannels: number;
-    mappingInfo: Record<string, unknown>;
-  } | null;
-  lerobot: {
-    info: Record<string, unknown>;
-    stats: Record<string, unknown>;
-    dataLines: string;
-    structure: { files: Array<{ path: string; description: string }> };
-  } | null;
-  processedAt: string;
-}
 
 export default function UploadPage() {
   const [fileContent, setFileContent] = useState<string>('');
@@ -90,20 +59,15 @@ export default function UploadPage() {
     return false; // prevent default upload
   }, []);
 
-  const handleDownloadSample = useCallback(async () => {
-    try {
-      const res = await fetch('/api/sample');
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'sample_tactile_4x4.csv';
-      a.click();
-      URL.revokeObjectURL(url);
-      message.success('示例文件已下载');
-    } catch {
-      message.error('下载失败');
-    }
+  const handleDownloadSample = useCallback(() => {
+    // 从 public 目录下载示例文件
+    const link = document.createElement('a');
+    link.href = '/sample_tactile_4x4.csv';
+    link.download = 'sample_tactile_4x4.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    message.success('示例文件已下载');
   }, []);
 
   const handleProcess = useCallback(async () => {
@@ -120,24 +84,15 @@ export default function UploadPage() {
       // 模拟步骤进度
       const stepTimer = setTimeout(() => setCurrentStep(2), 800);
 
-      const response = await fetch('/api/process', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fileName,
-          fileContent,
-          options: {
-            targetHand: targetHand !== 'none' ? targetHand : undefined,
-            exportLeRobot,
-            datasetName,
-          },
-        }),
+      // 使用客户端处理函数
+      const data = processTLabelData(fileName, fileContent, {
+        targetHand: targetHand !== 'none' ? targetHand : undefined,
+        exportLeRobot,
+        datasetName,
       });
 
       clearTimeout(stepTimer);
       setCurrentStep(3);
-
-      const data = await response.json();
 
       if (data.success) {
         setResult(data);
@@ -145,21 +100,16 @@ export default function UploadPage() {
         message.success('数据处理完成');
 
         // 记录到历史
-        await fetch('/api/history', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fileName,
-            status: 'completed',
-            channelCount: data.tlabel.channelCount,
-            sampleRate: data.tlabel.sampleRate,
-            sampleCount: data.tlabel.sampleCount,
-            targetHand: targetHand !== 'none' ? targetHand : null,
-            exportLeRobot,
-          }),
+        addHistoryEntry({
+          fileName,
+          status: 'completed',
+          channelCount: data.tlabel.channelCount,
+          sampleRate: data.tlabel.sampleRate,
+          sampleCount: data.tlabel.sampleCount,
+          targetHand: targetHand !== 'none' ? targetHand : null,
+          exportLeRobot,
         });
       } else {
-        message.error(data.error || '处理失败');
         setResult(data);
       }
     } catch (err) {

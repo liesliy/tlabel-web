@@ -86,6 +86,7 @@ logs/
 *.pptx
 *.xlsx
 *.csv
+!public/sample_tactile_4x4.csv
 
 # Preview files
 .preview
