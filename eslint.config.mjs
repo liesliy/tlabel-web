@@ -1,4 +1,4 @@
-import nextTs from 'eslint-config-next/typescript';
+import nextTs from 'eslint-config-next/typescript.js';
 import nextVitals from 'eslint-config-next/core-web-vitals';
 import { defineConfig, globalIgnores } from 'eslint/config';
 
