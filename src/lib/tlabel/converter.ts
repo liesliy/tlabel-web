@@ -171,6 +171,8 @@ export function convertToTLabel(
     timestamps,
     sample_rate: sampleRate,
     data,
+    jointData: jointData.length > 0 ? jointData : undefined,
+    rawChannelData: channelData,
     metadata: {
       source_format: 'csv',
       source_file: sourceFile,
