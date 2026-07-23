@@ -38,7 +38,7 @@ export const HAND_CONFIGS: Record<string, DexterousHandConfig> = {
       { fingerId: 'ring', fingerName: '无名指', rows: 4, cols: 2, channelOffset: 28 },
       { fingerId: 'pinky', fingerName: '小指', rows: 3, cols: 2, channelOffset: 36 },
     ],
-    totalTactelCount: 44,
+    totalTactelCount: 42,
   },
   'inspire_robotics': {
     id: 'inspire_robotics',
