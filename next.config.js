@@ -11,6 +11,10 @@ const nextConfig = {
   basePath: isGitHubPages ? '/tlabel-web' : '',
   // 确保静态资源路径正确
   assetPrefix: isGitHubPages ? '/tlabel-web' : '',
+  // 配置 Turbopack 根目录
+  turbopack: {
+    root: '.',
+  },
 };
 
 module.exports = nextConfig;
