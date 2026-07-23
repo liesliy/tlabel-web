@@ -13,7 +13,7 @@ export function convertToTLabel(
   rawData: ParsedRawData,
   sourceFile: string
 ): TLabelData {
-  const { timestamps, channelData, rows, cols, sampleRate, forceData } = rawData;
+  const { timestamps, channelData, rows, cols, sampleRate, forceData, jointData } = rawData;
   const totalChannels = rows * cols;
   const numSamples = timestamps.length;
 
