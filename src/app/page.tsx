@@ -29,6 +29,7 @@ import {
   LoadingOutlined,
   ExperimentOutlined,
 } from '@ant-design/icons';
+import JSZip from 'jszip';
 import { processTLabelData, type ProcessResult } from '@/lib/client/process';
 import { addHistoryEntry } from '@/lib/client/history';
 
@@ -131,16 +132,44 @@ export default function UploadPage() {
     message.success('TLabel JSON 已下载');
   }, [result, fileName]);
 
-  const handleDownloadLeRobot = useCallback(() => {
+  const handleDownloadLeRobot = useCallback(async () => {
     if (!result?.lerobot?.dataLines) return;
-    const blob = new Blob([result.lerobot.dataLines], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${datasetName}_data.jsonl`;
-    a.click();
-    URL.revokeObjectURL(url);
-    message.success('LeRobot 数据已下载');
+    
+    try {
+      const zip = new JSZip();
+      const dsName = datasetName || 'tlabel_dataset';
+      
+      // meta 文件
+      zip.folder('meta')!.file('info.json', JSON.stringify(result.lerobot.info, null, 2));
+      zip.folder('meta')!.file('stats.json', JSON.stringify(result.lerobot.stats, null, 2));
+      const tasks = { tasks: [{ task: 'tactile_data_collection', task_index: 0 }] };
+      zip.folder('meta')!.file('tasks.json', JSON.stringify(tasks, null, 2));
+      const episodes = [{ episode_index: 0, tasks: [0], length: result.lerobot.info.total_frames }];
+      zip.folder('meta')!.file('episodes.jsonl', episodes.map(e => JSON.stringify(e)).join('\n'));
+      
+      // 数据文件
+      zip.folder('data')!.folder('chunk-000')!.file('episode_000000.jsonl', result.lerobot.dataLines);
+      
+      // 打包下载
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${dsName}.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+      message.success('LeRobot 完整数据集已下载（含 meta 文件）');
+    } catch (err) {
+      console.error('ZIP 打包失败:', err);
+      const blob = new Blob([result!.lerobot!.dataLines], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${datasetName}_data.jsonl`;
+      a.click();
+      URL.revokeObjectURL(url);
+      message.warning('ZIP 打包失败，已降级为仅下载数据文件');
+    }
   }, [result, datasetName]);
 
   const steps = [
