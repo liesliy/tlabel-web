@@ -475,7 +475,7 @@ export default function UploadPage() {
                   style={{ marginBottom: 16 }}
                 >
                   <Alert
-                    message={`已映射到 ${result.urdfMapping.targetHand}`}
+                    title={`已映射到 ${result.urdfMapping.targetHand}`}
                     description={`目标触觉通道: ${result.urdfMapping.targetChannels} 个`}
                     type="success"
                     showIcon

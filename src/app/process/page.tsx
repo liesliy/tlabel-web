@@ -119,7 +119,7 @@ export default function ProcessPage() {
       </Title>
 
       <Alert
-        message="URDF 映射功能"
+        title="URDF 映射功能"
         description="上传灵巧手的 URDF 模型文件，系统将自动识别关节和链接信息，并将触觉数据映射到对应的灵巧手构型。支持 Unitree G1、因时机器人等常见灵巧手。"
         type="info"
         showIcon

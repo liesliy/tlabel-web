@@ -143,7 +143,7 @@ export default function SettingsPage() {
 
         <Card style={{ gridColumn: '1 / -1' }}>
           <Alert
-            message="关于 TLabel"
+            title="关于 TLabel"
             description={
               <Paragraph style={{ margin: 0 }}>
                 TLabel 是触觉数据标准化中间件/通用格式标准层，旨在为不同类型的触觉传感器和灵巧手提供统一的数据表示格式。
