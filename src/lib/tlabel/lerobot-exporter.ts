@@ -172,7 +172,7 @@ export function generateLeRobotDataLines(tlabelData: TLabelData): string {
 
     // 添加语义特征
     for (const featureName of SEMANTIC_FEATURE_NAMES) {
-      frame[\`observation.semantic.\${featureName}\`] = tlabelData.data[featureName][t];
+      frame[`observation.semantic.${featureName}`] = tlabelData.data[featureName][t];
     }
 
     // 添加关节数据作为 observation
