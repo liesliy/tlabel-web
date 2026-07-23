@@ -1,21 +1,12 @@
 'use client';
 
-export default function GlobalError({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
+export default function GlobalError() {
   return (
     <html>
       <body>
-        <div style={{ padding: '20px', textAlign: 'center' }}>
+        <div style={{ padding: "20px", textAlign: "center" }}>
           <h2>出错了</h2>
-          <p>{error.message || '发生未知错误'}</p>
-          <button onClick={reset} style={{ marginTop: '10px', padding: '8px 16px' }}>
-            重试
-          </button>
+          <p>应用遇到了意外错误，请刷新页面重试。</p>
         </div>
       </body>
     </html>
